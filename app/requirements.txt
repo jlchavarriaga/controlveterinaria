@@ -1,6 +1,10 @@
 fastapi
 uvicorn
+pymysql
 sqlalchemy
+databases
 pydantic
 passlib[bcrypt]
 python-jose
+python-dotenv
+
