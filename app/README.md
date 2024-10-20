@@ -4,11 +4,11 @@
 La función **get_db_connection()** establece una conexión con una base de datos que está en un servidor local. El código asume que el servidor está en el **puerto 3307** y que la base de datos es veterinaria. Usa la librería **pymysql**.
 
 ### 2. Clases con validación de datos (Modelos de Pydantic)
-- Cliente: Define el modelo de cliente con atributos como nombre, teléfono, dirección, correo, y contacto de emergencia. Usa **Pydantic** para validaciones de los campos (longitud mínima/máxima, patrones de regex, etc.).
+- **Cliente:** Define el modelo de cliente con atributos como nombre, teléfono, dirección, correo, y contacto de emergencia. Usa **Pydantic** para validaciones de los campos (longitud mínima/máxima, patrones de regex, etc.).
 
-- Mascota: Similar al modelo Cliente, este define atributos como nombre, diagnóstico, peso, altura, fechas (nacimiento, ingreso, salida), tipo de sangre, y las relaciones con el cliente (cliente_id) y tipo de mascota (tipo_mascota_id).
+- **Mascota:** Similar al modelo Cliente, este define atributos como nombre, diagnóstico, peso, altura, fechas (nacimiento, ingreso, salida), tipo de sangre, y las relaciones con el cliente (cliente_id) y tipo de mascota (tipo_mascota_id).
 
-- TipoMascota: Define el sexo, raza y tipo de animal (especie) de una mascota. Todos estos campos tienen validaciones.
+- **TipoMascota:** Define el sexo, raza y tipo de animal (especie) de una mascota. Todos estos campos tienen validaciones.
 
 ### 3. Manejador de errores personalizados
 
