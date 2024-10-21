@@ -4,8 +4,9 @@ services:
   app:
     build: .
     volumes:
-      - ./app:/app
+      - ./app:/app/app
+      - ./.env:/app/.env  # Asegúrate de que el archivo .env esté disponible para el contenedor
     ports:
       - "8000:8000"
     environment:
-      - DATABASE_URL=sqlite:///./test.db
+      - DATABASE_URL=sqlite:///./app/app.db

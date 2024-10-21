@@ -4,11 +4,16 @@ from sqlalchemy.orm import Session
 from app.database import SessionLocal, engine, Base
 from app.schemas import UserCreate, RoleCreate, User, Role
 from app.crud import create_user, create_role
+from app.models import User, Role
 
 app = FastAPI()
 
 # Create tables
 Base.metadata.create_all(bind=engine)
+
+@app.get("/")
+def read_root():
+    return {"message": "Hello, World"}
 
 # Dependency
 def get_db():
