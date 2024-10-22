@@ -1,21 +1,18 @@
-# app/main.py
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.orm import Session
-from app.database import SessionLocal, engine, Base
-from app.schemas import UserCreate, RoleCreate, User, Role
-from app.crud import create_user, create_role
-from app.models import User, Role
+from . import models, crud, schemas
+from .database import SessionLocal, engine, init_db
 
 app = FastAPI()
 
-# Create tables
-Base.metadata.create_all(bind=engine)
+@app.get('')
+async def read_root():
+    return{"Sistema de notificaciones, recibiras tu fokin notificaciones!"}
 
-@app.get("/")
-def read_root():
-    return {"message": "Hello, World"}
+#Iniciar la base de datos
+init_db()
 
-# Dependency
+# Dependencia de la sesión de DB
 def get_db():
     db = SessionLocal()
     try:
@@ -23,10 +20,22 @@ def get_db():
     finally:
         db.close()
 
-@app.post("/roles/", response_model=Role)
-def create_role_endpoint(role: RoleCreate, db: Session = Depends(get_db)):
-    return create_role(db, role)
+@app.post("/usuarios/", response_model=schemas.Usuario)
+def create_usuario(usuario: schemas.UsuarioCreate, db: Session = Depends(get_db)):
+    return crud.create_usuario(db=db, usuario=usuario)
 
-@app.post("/users/", response_model=User)
-def create_user_endpoint(user: UserCreate, db: Session = Depends(get_db)):
-    return create_user(db, user)
+# Endpoint para notificaciones
+@app.post("/notificaciones/")
+def programar_notificacion(id_usuario: int, mensaje: str, via: str, db: Session = Depends(get_db)):
+    usuario = crud.get_usuario(db, id_usuario)
+    if not usuario:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+    
+    if via == "sms":
+        send_sms(usuario.telefono_usuario, mensaje)
+    elif via == "whatsapp":
+        send_whatsapp(usuario.telefono_usuario, mensaje)
+    elif via == "email":
+        send_email(usuario.email_usuario, "Recordatorio", mensaje)
+
+    return {"mensaje": "Notificación programada"}
