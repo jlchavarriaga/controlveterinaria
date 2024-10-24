@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 from app.database import SessionLocal
-from app.models import User
+from app.models import Usuario
 from app.auth import SECRET_KEY, ALGORITHM
 from app.crud import get_user_by_username
 

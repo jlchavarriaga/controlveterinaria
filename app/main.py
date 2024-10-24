@@ -1,21 +1,15 @@
-# app/main.py
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.orm import Session
-from app.database import SessionLocal, engine, Base
-from app.schemas import UserCreate, RoleCreate, User, Role
-from app.crud import create_user, create_role
-from app.models import User, Role
+from app import models, crud, schemas  
+from app.database import SessionLocal, engine, init_db  
+from app.notifications import send_sms, send_whatsapp_notification, send_email  
 
 app = FastAPI()
 
-# Create tables
-Base.metadata.create_all(bind=engine)
+# Iniciar la base de datos
+init_db()
 
-@app.get("/")
-def read_root():
-    return {"message": "Hello, World"}
-
-# Dependency
+# Dependencia de la sesión de DB
 def get_db():
     db = SessionLocal()
     try:
@@ -23,10 +17,33 @@ def get_db():
     finally:
         db.close()
 
-@app.post("/roles/", response_model=Role)
-def create_role_endpoint(role: RoleCreate, db: Session = Depends(get_db)):
-    return create_role(db, role)
+@app.post("/usuarios/", response_model=schemas.Usuario)
+def create_usuario(usuario: schemas.UsuarioCreate, db: Session = Depends(get_db)):
+    return crud.create_usuario(db=db, usuario=usuario)
 
-@app.post("/users/", response_model=User)
-def create_user_endpoint(user: UserCreate, db: Session = Depends(get_db)):
-    return create_user(db, user)
+# Endpoint para notificaciones
+@app.post("/notificaciones/")
+def programar_notificacion(id_usuario: int, mensaje: str, via: str, db: Session = Depends(get_db)):
+    usuario = crud.get_usuario(db, id_usuario)
+    if not usuario:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+    
+    if via == "sms":
+        send_sms(usuario.telefono_usuario, mensaje)
+    elif via == "whatsapp":
+        send_whatsapp_notification(usuario.telefono_usuario, mensaje)
+    elif via == "email":
+        send_email(usuario.email_usuario, "Recordatorio", mensaje)
+
+    return {"mensaje": "Notificación programada"}
+@app.post("/send-whatsapp/")
+def send_notification(phone: str, date: str, time: str):
+    """
+    Endpoint para enviar notificaciones de WhatsApp.
+    Args:
+        phone (str): Número de teléfono destino en formato E.164.
+        date (str): Fecha de la cita (fecha: "24/10/2024").
+        time (str): Hora de la cita (hora: "9:30am").
+    """
+    send_whatsapp_notification(phone, date, time)
+    return {"status": "Notificación enviada por WhatsApp"}

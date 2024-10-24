@@ -1,29 +1,18 @@
-# app/schemas.py
 from pydantic import BaseModel
-
-class RoleBase(BaseModel):
-    name: str
-    description: str | None = None
-
-class RoleCreate(RoleBase):
-    pass
-
-class Role(RoleBase):
-    id: int
-
-    class Config:
-        orm_mode = True
+from datetime import datetime
 
 class UserBase(BaseModel):
-    username: str
+    nombre_usuario: str
+    email_usuario: str
+    telefono_usuario: str
 
-class UserCreate(UserBase):
-    password: str
-    role_id: int
+class CrearUsuario(UserBase):
+    pass
 
-class User(UserBase):
-    id: int
-    role: Role
+class Usuario(UserBase):
+    id_usuario: int
 
     class Config:
         orm_mode = True
+
+# Schemas para Animal, Cita, Tratamiento y Notificacion
