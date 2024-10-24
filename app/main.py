@@ -1,15 +1,12 @@
 from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.orm import Session
-from . import models, crud, schemas
-from .database import SessionLocal, engine, init_db
+from app import models, crud, schemas  
+from app.database import SessionLocal, engine, init_db  
+from app.notifications import send_sms, send_whatsapp_notification, send_email  
 
 app = FastAPI()
 
-@app.get('')
-async def read_root():
-    return{"Sistema de notificaciones, recibiras tu fokin notificaciones!"}
-
-#Iniciar la base de datos
+# Iniciar la base de datos
 init_db()
 
 # Dependencia de la sesión de DB
@@ -34,8 +31,19 @@ def programar_notificacion(id_usuario: int, mensaje: str, via: str, db: Session 
     if via == "sms":
         send_sms(usuario.telefono_usuario, mensaje)
     elif via == "whatsapp":
-        send_whatsapp(usuario.telefono_usuario, mensaje)
+        send_whatsapp_notification(usuario.telefono_usuario, mensaje)
     elif via == "email":
         send_email(usuario.email_usuario, "Recordatorio", mensaje)
 
     return {"mensaje": "Notificación programada"}
+@app.post("/send-whatsapp/")
+def send_notification(phone: str, date: str, time: str):
+    """
+    Endpoint para enviar notificaciones de WhatsApp.
+    Args:
+        phone (str): Número de teléfono destino en formato E.164.
+        date (str): Fecha de la cita (fecha: "24/10/2024").
+        time (str): Hora de la cita (hora: "9:30am").
+    """
+    send_whatsapp_notification(phone, date, time)
+    return {"status": "Notificación enviada por WhatsApp"}

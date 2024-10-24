@@ -6,10 +6,10 @@ class UserBase(BaseModel):
     email_usuario: str
     telefono_usuario: str
 
-class UserCreate(UserBase):
+class CrearUsuario(UserBase):
     pass
 
-class User(UserBase):
+class Usuario(UserBase):
     id_usuario: int
 
     class Config:
