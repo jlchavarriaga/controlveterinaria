@@ -1,18 +1,30 @@
-# app/models.py
-from sqlalchemy import Column, Integer, String, ForeignKey
-from sqlalchemy.orm import relationship
-from app.database import Base
+from pydantic import BaseModel
 
-class Role(Base):
-    __tablename__ = "roles"
-    id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, unique=True, index=True)
-    description = Column(String, nullable=True)
+# Modelos para Role
+class RoleBase(BaseModel):
+    name: str
+    description: str | None = None
 
-class User(Base):
-    __tablename__ = "users"
-    id = Column(Integer, primary_key=True, index=True)
-    username = Column(String, unique=True, index=True)
-    hashed_password = Column(String)
-    role_id = Column(Integer, ForeignKey("roles.id"))
-    role = relationship("Role")
+class RoleCreate(RoleBase):
+    pass
+
+class Role(RoleBase):
+    id: int
+
+    class Config:
+        from_attributes = True  # Para Pydantic v2
+
+# Modelos para User
+class UserBase(BaseModel):
+    username: str
+
+class UserCreate(UserBase):
+    password: str
+    role_id: int
+
+class User(UserBase):
+    id: int
+    role: Role
+
+    class Config:
+        from_attributes = True  # Para Pydantic v2
